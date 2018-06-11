@@ -17,7 +17,7 @@ void setup_Motor()
       steps = 0;
       pinMode(8, OUTPUT);
       pinMode(9, OUTPUT);
-      if(forward)
+      if(!forward)
       {
         digitalWrite(8,HIGH);  //change the pulse
       }
@@ -72,9 +72,9 @@ bool start_Sensor()
       if (Duration>0) {
         Distance = Duration/2;
         Distance = Distance*340*1000/1000000; // ultrasonic speed is 340m/s = 34000cm/s = 0.034cm/us
-        Serial.println("Distance = ");
+        /*Serial.println("Distance = ");
         Serial.println(Distance);
-        Serial.println(" mm");
+        Serial.println(" mm");*/
         /*Get fraction part*/
         String str_Fraction;
         int pos = 0;

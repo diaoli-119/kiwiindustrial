@@ -15,9 +15,9 @@ class Sensor_Control
     int start_Sensor();
 
    private:
-    int Duration; 
+    int duration; 
     int dot_Pos;
-    float Distance;
+    float distance;
     long long_Fraction;
     String str_Fraction;
     String str_Distance;

@@ -1,6 +1,8 @@
 #include "Sensor_Control.h"
 #include <LiquidCrystal_I2C.h>
 
+extern int lengthToBeCut;
+
 #define FRACTION_PART 3 //get 3 numbers from the fraction part
 #define MAXLENGTH 16
 #define TRIG 9  //pin 9 on mega 2560
@@ -31,25 +33,32 @@ void Sensor_Control::setup_Sensor()
       lcd.print("Power By Vincent");
       delay(3000);
       lcd.clear();*/
+        Serial.println("setup_Sensor()");
+
+  delay(3);
 }
 
 int Sensor_Control::start_Sensor()
 {
+        Serial.println("setup_Sensor()");
+
+  delay(3);
       digitalWrite(TRIG,LOW);
       delayMicroseconds(11);
       digitalWrite(TRIG,HIGH);
       delayMicroseconds(11);
       digitalWrite(TRIG,LOW);
       
-      Duration = pulseIn(ECHO,HIGH);
-      if (Duration>0) {
-        Distance = Duration/2;
-        Distance = Distance*340*1000/1000000; // ultrasonic speed is 340m/s = 34000cm/s = 0.034cm/us
-        /*Serial.println("Distance = ");
-        Serial.println(Distance);
+      duration = pulseIn(ECHO,HIGH);
+      if (duration>0) {
+        distance = duration/2;
+        distance = distance*340*1000/1000000; // ultrasonic speed is 340m/s = 340000mm/s = 0.34mm/us
+        /*Serial.println("distance = ");
+        Serial.println(distance);
         Serial.println(" mm");*/
+        
         /*Get fraction part*/
-        str_Distance = String(Distance);
+        str_Distance = String(distance);
         dot_Pos = str_Distance.indexOf('.');
         str_Fraction = str_Distance.substring(dot_Pos + 1);
     
@@ -57,17 +66,17 @@ int Sensor_Control::start_Sensor()
         long_Fraction = str_Fraction.toInt();
         if(long_Fraction >= 50)
         {
-          Distance = ceil(Distance);
+          distance = ceil(distance);
         }
         else
         {
-          Distance = floor(Distance);
+          distance = floor(distance);
         }
-        str_Distance = String(Distance);
-        dot_Pos = str_Distance.indexOf('.');
-        str_Distance = str_Distance.substring(0, dot_Pos);
-        /*Serial.print("Duration = ");
-        Serial.print(Duration);
+        str_Distance = String(distance);
+        //dot_Pos = str_Distance.indexOf('.');
+        //str_Distance = str_Distance.substring(0, dot_Pos);
+        /*Serial.print("duration = ");
+        Serial.print(duration);
         Serial.print(" us ");
         Serial.print(str_Distance);
         Serial.println(" mm");*/
@@ -75,7 +84,7 @@ int Sensor_Control::start_Sensor()
         lcd.print(str_Distance);
         lcd.setCursor(4,0);
         lcd.print("mm");
-        return (Distance - 100); 
+        return (distance - lengthToBeCut); 
       }
       return 0;
 }

@@ -14,12 +14,12 @@ class Motor_Control
     void stop_Motor();
     
   public:
-    bool trigMotor;
+    bool trigMotor; //trig the motor to start
     bool forward; //go forward
     int stepsToRun; //steps of the motor to run to the expected position
     int deviation;  //deviation value between expected value and actual value    
     int currentSteps; //current steps of the motor
-
+    
   private:
     int laps;  //laps of step motor
 };
