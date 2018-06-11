@@ -16,6 +16,8 @@ void loop() {
     MoC.start_Motor();
     if(MoC.currentSteps >= MoC.stepsToRun)
       {
+        Serial.println("currentSteps = " + MoC.currentSteps);
+        Serial.println("stepsToRun = " + MoC.stepsToRun);
         MoC.trigMotor = false;
         MoC.stop_Motor();
         SeC.setup_Sensor();

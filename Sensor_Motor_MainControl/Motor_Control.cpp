@@ -2,6 +2,7 @@
 
 Motor_Control::Motor_Control()
 {
+  Serial.begin(9600);
   forward = false;
   deviation = 0;
   currentSteps = 0;
@@ -35,9 +36,9 @@ void Motor_Control::setup_Motor()
 void Motor_Control::start_Motor()
 {
       digitalWrite(9, LOW);
-      delayMicroseconds(500);
+      delayMicroseconds(100);
       digitalWrite(9, HIGH);
-      delayMicroseconds(500);
+      delayMicroseconds(100);
       currentSteps += 1;  //calculate the distance
 }
 

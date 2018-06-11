@@ -1,6 +1,7 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <string.h>
+#include <AccelStepper.h>
 #include "DistanceMeasure_Display.h"
 
 #define FRACTION_PART 3
@@ -17,7 +18,7 @@ void setup_Motor()
       steps = 0;
       pinMode(8, OUTPUT);
       pinMode(9, OUTPUT);
-      if(!forward)
+      if(forward)
       {
         digitalWrite(8,HIGH);  //change the pulse
       }
@@ -47,11 +48,12 @@ void setup_Sensor()
 void start_Motor()
 {
       digitalWrite(9, LOW);
-      delayMicroseconds(500);
+      delayMicroseconds(100);
       digitalWrite(9, HIGH);
-      delayMicroseconds(500);
+      delayMicroseconds(100);
       steps += 1;  //calculate the distance
-      if(steps >= initialSteps)
+      Serial.println(steps);
+      if(steps >= extraSteps)
       {
         trigMotor = false;
         setup_Sensor();
@@ -109,31 +111,35 @@ bool start_Sensor()
         //delay(2000);
         //lcd.clear();
         deviation = Distance - 100;
-        /*Serial.println("deviation = ");
+        Serial.println("deviation = ");
         Serial.println(deviation);
-        Serial.println(" mm");*/
+        Serial.println(" mm");
+        //delay(3000);
         //steps = 0;
         if(deviation > 1)
         {
           forward = true;
           extraSteps = (deviation * 200)/2;  //(200steps/2mm) = (extraSteps/deviation)=>extraSteps = (deviation * 200)/2
-          /*Serial.println("extraSteps = ");
-          Serial.println(extraSteps);*/
-          delay(3000);
+          Serial.println("extraSteps = ");
+          Serial.println(extraSteps);
+          //delay(3000);
           setup_Motor();
         }
         else if(deviation < -1)
         {
           forward = false;
           extraSteps = -(deviation * 200)/2;
-          /*Serial.println("extraSteps = ");
-          Serial.println(extraSteps);*/
-          delay(3000);
+          Serial.println("extraSteps = ");
+          Serial.println(extraSteps);
+          //delay(3000);
           setup_Motor();
         }
         else
         {
+          Serial.println("stop");
           trigMotor = false;
+          AccelStepper stepMotor(1, 8, 9);
+          stepMotor.stop();
           bladeDown();
         }
       }  
