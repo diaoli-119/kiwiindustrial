@@ -1,19 +1,61 @@
-#include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
-#include <string.h>
-#include <AccelStepper.h>
-#include "DistanceMeasure_Display.h"
+#include "DistanceMeasure_Display_TM1637.h"
 
+// Distance number
 #define FRACTION_PART 3
 #define MAXLENGTH 16
+
+// Sensor pin
 #define TRIG 9
 #define ECHO 10
 
-LiquidCrystal_I2C lcd(0x27,16,2);
+// Module connection pins (Digital Pins)
+#define CLK 2
+#define DIO 3
+
+// The amount of time (in milliseconds) between tests
+#define TEST_DELAY   2000
+
+                     /*0*/ /*1*/ /*2*/ /*3*/ /*4*/ /*5*/ /*6*/ /*7*/ /*8*/ /*9*/
+uint8_t digits[] = { 0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f };
+
+uint8_t SEG_NUMBER[] = {
+      digits[8],  // 8
+      digits[8],  // 8
+      digits[8],  // 8
+      digits[8]   // 8
+};
+
+TM1637Display display(CLK, DIO);
+
+void setup() {
+  Serial.begin(9600);
+  /*int k;
+  uint8_t data[] = { 0xff, 0xff, 0xff, 0xff };
+  display.setBrightness(0x0f);
+  // All segments on
+  display.setSegments(data);
+  delay(TEST_DELAY);*/
+  
+  forward = false;
+  deviation = 0;
+  laps = 10;
+  extraSteps = 200 * laps;  //initial steps. 1.8 degree/step, 200 steps a lap, S3 OFF,S4 OFF
+  setup_Motor();
+}
+
+void loop() {
+  if(trigMotor)
+  {
+    start_Motor();
+  }
+  else
+  {
+    start_Sensor(); 
+  }
+}
 
 void setup_Motor()
 {
-      Serial.begin(9600);
       trigMotor = true;
       steps = 0;
       pinMode(8, OUTPUT);
@@ -31,18 +73,9 @@ void setup_Motor()
 
 void setup_Sensor()
 {
-      //Serial.println("Start Sensor");
       pinMode(TRIG,OUTPUT);
       pinMode(ECHO,INPUT);
-      lcd.init();
       //Print a message to a LCD
-      lcd.backlight();
-      /*lcd.setCursor(1,0);
-      lcd.print("LCD 1602A 2018");
-      lcd.setCursor(0,1);
-      lcd.print("Power By Vincent");
-      delay(3000);
-      lcd.clear();*/
 }
 
 void start_Motor()
@@ -52,7 +85,7 @@ void start_Motor()
       digitalWrite(9, HIGH);
       delayMicroseconds(100);
       steps += 1;  //calculate the distance
-      Serial.println(steps);
+      //Serial.println(steps);
       if(steps >= extraSteps)
       {
         trigMotor = false;
@@ -104,49 +137,52 @@ bool start_Sensor()
         Serial.print(" us ");
         Serial.print(str_Distance);
         Serial.println(" mm");*/
-        lcd.setCursor(0,0);
-        lcd.print(str_Distance);
-        lcd.setCursor(4,0);
-        lcd.print("mm");
-        //delay(2000);
-        //lcd.clear();
+        //digital_Display(str_Distance);
         deviation = Distance - 100;
-        Serial.println("deviation = ");
+        /*Serial.println("deviation = ");
         Serial.println(deviation);
-        Serial.println(" mm");
-        //delay(3000);
-        //steps = 0;
+        Serial.println(" mm");*/
         if(deviation > 1)
         {
           forward = true;
           extraSteps = (deviation * 200)/2;  //(200steps/2mm) = (extraSteps/deviation)=>extraSteps = (deviation * 200)/2
-          Serial.println("extraSteps = ");
-          Serial.println(extraSteps);
-          //delay(3000);
+          /*Serial.println("extraSteps = ");
+          Serial.println(extraSteps);*/
           setup_Motor();
         }
         else if(deviation < -1)
         {
           forward = false;
           extraSteps = -(deviation * 200)/2;
-          Serial.println("extraSteps = ");
-          Serial.println(extraSteps);
-          //delay(3000);
+          /*Serial.println("extraSteps = ");
+          Serial.println(extraSteps);*/
           setup_Motor();
         }
         else
         {
-          Serial.println("stop");
+          //Serial.println("stop");
           trigMotor = false;
-          AccelStepper stepMotor(1, 8, 9);
-          stepMotor.stop();
+          //AccelStepper stepMotor(1, 8, 9);
+          //stepMotor.stop();
           bladeDown();
         }
       }  
+}
+
+void digital_Display(String distance)
+{
+  int first = distance[0] - '0';
+  int second = distance[1] - '0';
+  int third = distance[2] - '0';
+  int fourth = distance[3] - '0';
+  SEG_NUMBER[0] = digits[first];
+  SEG_NUMBER[1] = digits[second];
+  SEG_NUMBER[2] = digits[third];
+  SEG_NUMBER[3] = digits[fourth];
+  display.setSegments(SEG_NUMBER);
 }
 
 void bladeDown()
 {
   
 }
-
