@@ -29,12 +29,12 @@ TM1637Display display(CLK, DIO);
 
 void setup() {
   Serial.begin(9600);
-  /*int k;
+  int k;
   uint8_t data[] = { 0xff, 0xff, 0xff, 0xff };
   display.setBrightness(0x0f);
   // All segments on
   display.setSegments(data);
-  delay(TEST_DELAY);*/
+  delay(TEST_DELAY);
   
   forward = false;
   deviation = 0;
@@ -73,9 +73,9 @@ void setup_Motor()
 
 void setup_Sensor()
 {
+      //Serial.println("Start Sensor");
       pinMode(TRIG,OUTPUT);
       pinMode(ECHO,INPUT);
-      //Print a message to a LCD
 }
 
 void start_Motor()
@@ -85,7 +85,7 @@ void start_Motor()
       digitalWrite(9, HIGH);
       delayMicroseconds(100);
       steps += 1;  //calculate the distance
-      //Serial.println(steps);
+      Serial.println("");
       if(steps >= extraSteps)
       {
         trigMotor = false;
@@ -132,12 +132,12 @@ bool start_Sensor()
         str_Distance = String(Distance);
         pos = str_Distance.indexOf('.');
         str_Distance = str_Distance.substring(0, pos);
-        /*Serial.print("Duration = ");
-        Serial.print(Duration);
-        Serial.print(" us ");
-        Serial.print(str_Distance);
-        Serial.println(" mm");*/
-        //digital_Display(str_Distance);
+        /*Serial.println("Duration = ");
+        Serial.println(Duration);
+        Serial.println(" us ");*/
+        Serial.println("str_Distance = " + str_Distance + " mm");
+        digital_Display(str_Distance);
+        delay(3000);
         deviation = Distance - 100;
         /*Serial.println("deviation = ");
         Serial.println(deviation);
@@ -160,26 +160,60 @@ bool start_Sensor()
         }
         else
         {
-          //Serial.println("stop");
+          Serial.println("stop");
           trigMotor = false;
           //AccelStepper stepMotor(1, 8, 9);
           //stepMotor.stop();
+          delay(60000);
           bladeDown();
         }
       }  
 }
-
 void digital_Display(String distance)
 {
-  int first = distance[0] - '0';
-  int second = distance[1] - '0';
-  int third = distance[2] - '0';
-  int fourth = distance[3] - '0';
+  int len = distance.length();
+  int first, second, third, fourth;
+  switch(len)
+  {
+    case 1:
+    {
+      first = 0;
+      second = 0;
+      third = 0;
+      fourth = distance[0] - '0';
+      break;
+    }
+    case 2:
+    {
+      first = 0;
+      second = 0;
+      third = distance[0] - '0';
+      fourth = distance[1] - '0';
+      break;
+    }
+    case 3:
+    {
+      first = 0;
+      second = distance[0] - '0';
+      third = distance[1] - '0';
+      fourth = distance[2] - '0';
+      break;
+    }
+    case 4:
+    {
+      first = distance[0] - '0';
+      second = distance[1] - '0';
+      third = distance[2] - '0';
+      fourth = distance[3] - '0';
+      break;      
+    }
+    default:{}
+  }
   SEG_NUMBER[0] = digits[first];
   SEG_NUMBER[1] = digits[second];
   SEG_NUMBER[2] = digits[third];
   SEG_NUMBER[3] = digits[fourth];
-  display.setSegments(SEG_NUMBER);
+  display.setSegments(SEG_NUMBER);  
 }
 
 void bladeDown()

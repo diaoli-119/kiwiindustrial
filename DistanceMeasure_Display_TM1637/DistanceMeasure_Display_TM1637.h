@@ -5,7 +5,7 @@
 #include <TM1637Display.h>
 #include <Wire.h> 
 #include <string.h>
-#include <AccelStepper.h>
+//#include <AccelStepper.h>
 
 bool trigMotor;
 bool stopMotor;
